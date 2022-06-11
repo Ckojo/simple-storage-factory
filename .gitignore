@@ -83,6 +83,10 @@ yarn.lock
 .nuxt
 dist
 
+# Smart contract compiled files
+SimpleStorage_sol_SimpleStorage.bin
+SimpleStorage_sol_SimpleStorage.abi
+
 # Gatsby files
 .cache/
 # Comment in the public line in if your project uses Gatsby and *not* Next.js
