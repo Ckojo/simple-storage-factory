@@ -1,13 +1,11 @@
 const ethers = require("ethers");
 const fs = require("fs");
+require("dotenv").config();
 
 async function main() {
-  const rpcServer = "http://127.0.0.1:7545";
+  const rpcServer = process.env.RPC_URL;
   const provider = new ethers.providers.JsonRpcProvider(rpcServer);
-  const wallet = new ethers.Wallet(
-    "6c2fedc83aaba541b21a63b98ad0dd39c6e0477a46e21c597df4e29f9752b1fe",
-    provider
-  );
+  const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
   const abi = fs.readFileSync("./SimpleStorage_sol_SimpleStorage.abi", "utf-8");
   const binary = fs.readFileSync(
     "./SimpleStorage_sol_SimpleStorage.bin",
@@ -16,7 +14,7 @@ async function main() {
   const contractFactory = new ethers.ContractFactory(abi, binary, wallet);
   console.log("Deploying, please wait....");
   const contract = await contractFactory.deploy(); // STOP here, wait for contract to deploy
-  const transactionReceipt = await contract.deployTransaction.wait(1);
+  await contract.deployTransaction.wait(1); // THIS IS A KIND OF TRANSACTION RECEIPT
 
   // ============================== THIS IS HOW WE CAN DEPLOY WITH OUR OWN TRANSACTION DATA ==============================
   // console.log("Deploying with only transaction data");
@@ -35,7 +33,12 @@ async function main() {
   // console.log(sentTxResponse);
 
   const currentFavoriteNumber = await contract.retrieve();
-  console.log(currentFavoriteNumber);
+  console.log(`Current favorite number: ${currentFavoriteNumber.toString()}`);
+
+  const transactionResponse = await contract.store("7");
+  await transactionResponse.wait(1);
+  const updatedFavoriteNumber = await contract.retrieve();
+  console.log(`Updated favorite number: ${updatedFavoriteNumber.toString()}`);
 }
 
 main()
